@@ -1,60 +1,35 @@
 # Maze Solver: My fifth(?) guided project from boot.dev
 
-from tkinter import Tk, BOTH, Canvas
-
-# Remember to move these classes to another file soon otherwise the main file is gonna be BLOATED AS HELL
-
-class Window:
-    def __init__(self, width, height):
-        self.__root = Tk()
-        self.__root.title = "Maze Solver"
-        self.__canvas = Canvas(self.__root, width=width, height=height)
-        self.__canvas.pack()
-        self.__is_running = False
-        self.__root.protocol("WM_DELETE_WINDOW", self.close)
-    
-    def redraw(self):
-        self.__root.update_idletasks()
-        self.__root.update()
-    
-    def draw_line(self, line, fill_color):
-        line.draw(self.__canvas, fill_color)
-    
-    def wait_for_close(self):
-        self.__is_running = True
-        while self.__is_running == True:
-            self.redraw()
-    
-    def close(self):
-        self.__is_running = False
-
-class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-class Line:
-    def __init__(self, point1, point2):
-        self.__point1 = point1
-        self.__point2 = point2
-    
-    def draw(self, canvas, fill_color):
-        canvas.create_line(
-            self.__point1.x, self.__point1.y, self.__point2.x, self.__point2.y, fill=fill_color, width=2
-        )
-
+from classes import *
 
 win = Window(800, 600)
-# Drawing some lines :3c
-win.draw_line(Line(Point(70, 50), Point(70, 150)), "black")
+# No more lines. Time for squares.
+first_cell = Cell(0, 0, 50, 50, win)
+first_cell.draw()
 
-win.draw_line(Line(Point(370, 50), Point(370, 150)), "black")
-win.draw_line(Line(Point(470, 50), Point(470, 150)), "black")
+beeg_cell = Cell(75, 10, 175, 110, win)
+beeg_cell.draw()
 
-win.draw_line(Line(Point(70, 450), Point(70, 550)), "black")
-win.draw_line(Line(Point(170, 450), Point(170, 550)), "black")
+# Drawing a few cells without some walls wish me luck yippeeeeeeee
+cell_no_left = Cell(200, 10, 250, 260, win)
+cell_no_left.remove_walls("left")
+cell_no_left.draw()
 
-win.draw_line(Line(Point(370, 450), Point(370, 550)), "black")
-win.draw_line(Line(Point(470, 550), Point(570, 550)), "black")
+cell_no_right = Cell(300, 10, 350, 30, win)
+cell_no_right.remove_walls("right")
+cell_no_right.draw()
 
+cell_but_parallel_lines = Cell(50, 300, 100, 350, win)
+cell_but_parallel_lines.remove_walls("top", "bottom")
+cell_but_parallel_lines.draw()
+
+deadass_just_one_line = Cell(50, 400, 100, 450, win)
+deadass_just_one_line.remove_walls("left", "right", "bottom")
+deadass_just_one_line.draw()
+
+# This one should raise an exception due to a malformed remove_walls() function
+#bad_boy = Cell(75, 500, 125, 550, win)
+#bad_boy.remove_walls("yes")
+#bad_boy.draw()
+# It worked
 win.wait_for_close()
