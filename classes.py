@@ -1,6 +1,7 @@
 # This document will hold all the classes that main.py will use
 
 from tkinter import Tk, BOTH, Canvas
+import time
 
 class Window:
     def __init__(self, width, height):
@@ -42,7 +43,7 @@ class Line:
         )
 
 class Cell:
-    def __init__(self, x1, y1, x2, y2, win):
+    def __init__(self, x1, y1, x2, y2, win=None):
         self.__x1 = x1
         self.__y1 = y1
         self.__x2 = x2
@@ -68,15 +69,57 @@ class Cell:
                     raise Exception("invalid input. which wall are you removing?")
     
     def draw(self):
-        if self.has_left_wall == True:
+        if self.__win == None:
+            return
+        
+        if self.has_left_wall:
             left_wall = Line(Point(self.__x1, self.__y1), Point(self.__x1, self.__y2))
             self.__win.draw_line(left_wall, "black")
-        if self.has_top_wall == True:
+        if self.has_top_wall:
             left_wall = Line(Point(self.__x1, self.__y1), Point(self.__x2, self.__y1))
             self.__win.draw_line(left_wall, "black")
-        if self.has_right_wall == True:
+        if self.has_right_wall:
             left_wall = Line(Point(self.__x2, self.__y1), Point(self.__x2, self.__y2))
             self.__win.draw_line(left_wall, "black")
-        if self.has_bottom_wall == True:
+        if self.has_bottom_wall:
             left_wall = Line(Point(self.__x2, self.__y2), Point(self.__x1, self.__y2))
             self.__win.draw_line(left_wall, "black")
+    
+    def draw_move(self, to_cell, undo=False):
+        center1 = Point(self.__x1 + (self.__x2 - self.__x1) / 2, self.__y1 + (self.__y2 - self.__y1) / 2)
+        center2 = Point(to_cell.__x1 + (to_cell.__x2 - to_cell.__x1) / 2, to_cell.__y1 + (to_cell.__y2 - to_cell.__y1) / 2)
+        path = Line(center1, center2)
+        if undo == False:
+            self.__win.draw_line(path, "red")
+        else:
+            self.__win.draw_line(path, "gray")
+
+class Maze:
+    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, win=None):
+        self.__x1 = x1
+        self.__y1 = y1
+        self.__num_rows = num_rows
+        self.__num_cols = num_cols
+        self.__cell_size_x = cell_size_x
+        self.__cell_size_y = cell_size_y
+        self.__win = win
+        self._create_cells()
+    
+    def _create_cells(self):
+        self._cells = [[Cell(
+            self.__x1 + (self.__cell_size_x * j),
+            self.__y1 + (self.__cell_size_y * i),
+            (self.__x1 + (self.__cell_size_x * j)) + self.__cell_size_x,
+            (self.__y1 + (self.__cell_size_y * i)) + self.__cell_size_y,
+            self.__win
+            ) for i in range(self.__num_rows)] for j in range(self.__num_cols)]
+        for i in range(len(self._cells)):
+            for j in range(len(self._cells[i])):
+                self._cells[i][j].draw()
+                self._animate()
+    
+    def _animate(self):
+        if self.__win != None:
+            self.__win.redraw()
+            time.sleep(0.05)
+    
