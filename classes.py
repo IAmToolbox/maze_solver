@@ -2,6 +2,7 @@
 
 from tkinter import Tk, BOTH, Canvas
 import time
+import random
 
 class Window:
     def __init__(self, width, height):
@@ -113,6 +114,9 @@ class Maze:
             (self.__y1 + (self.__cell_size_y * i)) + self.__cell_size_y,
             self.__win
             ) for i in range(self.__num_rows)] for j in range(self.__num_cols)]
+        self._draw_cell()
+        
+    def _draw_cell(self):
         for i in range(len(self._cells)):
             for j in range(len(self._cells[i])):
                 self._cells[i][j].draw()
@@ -123,3 +127,8 @@ class Maze:
             self.__win.redraw()
             time.sleep(0.05)
     
+    def _break_entrance_and_exit(self):
+        self._cells[0][0].remove_walls(random.choice(["left", "top"]))
+        self._draw_cell()
+        self._cells[-1][-1].remove_walls(random.choice(["right", "bottom"]))
+        self._draw_cell()
