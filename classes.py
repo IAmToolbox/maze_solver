@@ -53,6 +53,7 @@ class Cell:
         self.has_right_wall = True
         self.has_top_wall = True
         self.has_bottom_wall = True
+        self.visited = False
         self.__win = win
     
     def remove_walls(self, *args): # CALL THIS BEFORE THE draw() FUNCTION IF YOU WANNA REMOVE WALLS
@@ -76,15 +77,27 @@ class Cell:
         if self.has_left_wall:
             left_wall = Line(Point(self.__x1, self.__y1), Point(self.__x1, self.__y2))
             self.__win.draw_line(left_wall, "black")
+        else:
+            left_wall = Line(Point(self.__x1, self.__y1), Point(self.__x1, self.__y2))
+            self.__win.draw_line(left_wall, "#d9d9d9")
         if self.has_top_wall:
-            left_wall = Line(Point(self.__x1, self.__y1), Point(self.__x2, self.__y1))
-            self.__win.draw_line(left_wall, "black")
+            top_wall = Line(Point(self.__x1, self.__y1), Point(self.__x2, self.__y1))
+            self.__win.draw_line(top_wall, "black")
+        else:
+            top_wall = Line(Point(self.__x1, self.__y1), Point(self.__x2, self.__y1))
+            self.__win.draw_line(top_wall, "#d9d9d9")
         if self.has_right_wall:
-            left_wall = Line(Point(self.__x2, self.__y1), Point(self.__x2, self.__y2))
-            self.__win.draw_line(left_wall, "black")
+            right_wall = Line(Point(self.__x2, self.__y1), Point(self.__x2, self.__y2))
+            self.__win.draw_line(right_wall, "black")
+        else:
+            right_wall = Line(Point(self.__x2, self.__y1), Point(self.__x2, self.__y2))
+            self.__win.draw_line(right_wall, "#d9d9d9")
         if self.has_bottom_wall:
-            left_wall = Line(Point(self.__x2, self.__y2), Point(self.__x1, self.__y2))
-            self.__win.draw_line(left_wall, "black")
+            bottom_wall = Line(Point(self.__x2, self.__y2), Point(self.__x1, self.__y2))
+            self.__win.draw_line(bottom_wall, "black")
+        else:
+            bottom_wall = Line(Point(self.__x2, self.__y2), Point(self.__x1, self.__y2))
+            self.__win.draw_line(bottom_wall, "#d9d9d9")
     
     def draw_move(self, to_cell, undo=False):
         center1 = Point(self.__x1 + (self.__x2 - self.__x1) / 2, self.__y1 + (self.__y2 - self.__y1) / 2)
@@ -96,7 +109,7 @@ class Cell:
             self.__win.draw_line(path, "gray")
 
 class Maze:
-    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, win=None):
+    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, win=None, seed=None):
         self.__x1 = x1
         self.__y1 = y1
         self.__num_rows = num_rows
@@ -104,6 +117,8 @@ class Maze:
         self.__cell_size_x = cell_size_x
         self.__cell_size_y = cell_size_y
         self.__win = win
+        if seed != None:
+            random.seed(seed)
         self._create_cells()
     
     def _create_cells(self):
@@ -129,6 +144,53 @@ class Maze:
     
     def _break_entrance_and_exit(self):
         self._cells[0][0].remove_walls(random.choice(["left", "top"]))
-        self._draw_cell()
+        self._cells[0][0].draw()
         self._cells[-1][-1].remove_walls(random.choice(["right", "bottom"]))
-        self._draw_cell()
+        self._cells[-1][-1].draw()
+    
+    def _break_walls_r(self, i, j):
+        self._cells[i][j].visited = True
+        while True:
+            possible_directions = []
+            if i < len(self._cells) - 1:
+                if self._cells[i + 1][j].visited == False:
+                    possible_directions.append((i + 1, j))
+            if j < len(self._cells[i]) - 1:
+                if self._cells[i][j + 1].visited == False:
+                    possible_directions.append((i, j + 1))
+            if i != 0:
+                if self._cells[i - 1][j].visited == False:
+                    possible_directions.append((i - 1, j))
+            if j != 0:
+                if self._cells[i][j - 1].visited == False:
+                    possible_directions.append((i, j - 1))
+            
+            if len(possible_directions) == 0:
+                self._cells[i][j].draw()
+                return
+            else:
+                currently_in = (i, j)
+                going_to = random.choice(possible_directions)
+            if currently_in[0] == going_to[0]:
+                if currently_in[1] > going_to[1]:
+                    self._cells[i][j].remove_walls("left")
+                    self._cells[i][j].draw()
+                    self._cells[i][j - 1].remove_walls("right")
+                    self._cells[i][j - 1].draw()
+                if currently_in[1] < going_to[1]:
+                    self._cells[i][j].remove_walls("right")
+                    self._cells[i][j].draw()
+                    self._cells[i][j + 1].remove_walls("left")
+                    self._cells[i][j + 1].draw()
+            if currently_in[1] == going_to[1]:
+                if currently_in[0] > going_to[0]:
+                    self._cells[i][j].remove_walls("top")
+                    self._cells[i][j].draw()
+                    self._cells[i - 1][j].remove_walls("bottom")
+                    self._cells[i - 1][j].draw()
+                if currently_in[0] < going_to[0]:
+                    self._cells[i][j].remove_walls("bottom")
+                    self._cells[i][j].draw()
+                    self._cells[i + 1][j].remove_walls("top")
+                    self._cells[i + 1][j].draw()
+            self._break_walls_r(going_to[0], going_to[1])
