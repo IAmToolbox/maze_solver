@@ -43,6 +43,15 @@ class Tests(unittest.TestCase):
             exit_walls -= 1
         self.assertEqual(entrance_walls, 3)
         self.assertEqual(exit_walls, 3)
+    
+    def test_visit_reset(self):
+        num_cols = 5
+        num_rows = 5
+        m1 = Maze(0, 0, num_rows, num_cols, 10, 10, None, 0)
+        m1._break_entrance_and_exit()
+        m1._reset_cells_visited()
+        self.assertTrue(m1._cells[0][0])
+        self.assertTrue(m1._cells[-1][-1])
 
 if __name__ == "__main__":
     unittest.main()

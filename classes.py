@@ -194,3 +194,8 @@ class Maze:
                     self._cells[i + 1][j].remove_walls("top")
                     self._cells[i + 1][j].draw()
             self._break_walls_r(going_to[0], going_to[1])
+    
+    def _reset_cells_visited(self):
+        for i in range(len(self._cells)):
+            for j in range(len(self._cells[i])):
+                self._cells[i][j].visited = False
