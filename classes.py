@@ -199,3 +199,41 @@ class Maze:
         for i in range(len(self._cells)):
             for j in range(len(self._cells[i])):
                 self._cells[i][j].visited = False
+    
+    def solve(self):
+        return self._solve_r(0, 0)
+    
+    def _solve_r(self, i, j):
+        self._animate()
+        self._cells[i][j].visited = True
+        if i == len(self._cells) - 1 and j == len(self._cells[i]) - 1:
+            return True
+        if j + 1 < len(self._cells[i]) and not self._cells[i][j].has_bottom_wall and not self._cells[i][j + 1].visited:
+            print("Going down")
+            self._cells[i][j].draw_move(self._cells[i][j + 1])
+            if self._solve_r(i, j + 1) == True:
+                return True
+            else:
+                self._cells[i][j].draw_move(self._cells[i][j + 1], undo=True)
+        if i + 1 < len(self._cells) and not self._cells[i][j].has_right_wall and not self._cells[i + 1][j].visited:
+            print("Going right")
+            self._cells[i][j].draw_move(self._cells[i + 1][j])
+            if self._solve_r(i + 1, j) == True:
+                return True
+            else:
+                self._cells[i][j].draw_move(self._cells[i + 1][j], undo=True)
+        if j - 1 > -1 and not self._cells[i][j].has_top_wall and not self._cells[i][j - 1].visited:
+            print("Going up")
+            self._cells[i][j].draw_move(self._cells[i][j - 1])
+            if self._solve_r(i, j - 1) == True:
+                return True
+            else:
+                self._cells[i][j].draw_move(self._cells[i][j - 1], undo=True)
+        if i - 1 > -1 and not self._cells[i][j].has_left_wall and not self._cells[i - 1][j].visited:
+            print("Going left")
+            self._cells[i][j].draw_move(self._cells[i - 1][j])
+            if self._solve_r(i - 1, j) == True:
+                return True
+            else:
+                self._cells[i][j].draw_move(self._cells[i - 1][j], undo=True)
+        return False
